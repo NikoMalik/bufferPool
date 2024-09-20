@@ -98,9 +98,12 @@ func (b *Buffer) Grow(n int) {
 }
 
 func (b *Buffer) Write(p []byte) (int, error) {
-
-	b.buf = append(b.buf, p...)
-	return len(p), nil
+	if len(p) > cap(b.buf)-b.end {
+		b.grow(len(p))
+	}
+	n := copy(b.buf[b.end:], p)
+	b.end += n
+	return n, nil
 }
 
 func (b *Buffer) ReadByte() (byte, error) {
